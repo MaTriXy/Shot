@@ -1,6 +1,7 @@
 package com.karumi.shot.tasks
 
 import com.karumi.shot.android.Adb
+import com.karumi.shot.reports.ExecutionReporter
 import com.karumi.shot.screenshots.{ScreenshotsComparator, ScreenshotsSaver}
 import com.karumi.shot.ui.Console
 import com.karumi.shot.{Files, Shot, ShotExtension}
@@ -14,7 +15,8 @@ abstract class ShotTask() extends DefaultTask {
              new Files,
              new ScreenshotsComparator,
              new ScreenshotsSaver,
-             new Console)
+             new Console,
+             new ExecutionReporter)
   protected val shotExtension: ShotExtension =
     getProject.getExtensions.findByType(classOf[ShotExtension])
 

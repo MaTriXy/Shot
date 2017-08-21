@@ -5,6 +5,7 @@ import java.io.File
 import com.karumi.shot.android.Adb
 import com.karumi.shot.domain._
 import com.karumi.shot.domain.model.{AppId, Folder, ScreenshotsSuite}
+import com.karumi.shot.reports.ExecutionReporter
 import com.karumi.shot.screenshots.{ScreenshotsComparator, ScreenshotsSaver}
 import com.karumi.shot.ui.Console
 import com.karumi.shot.xml.ScreenshotsSuiteXmlParser._
@@ -19,7 +20,8 @@ class Shot(val adb: Adb,
            val fileReader: Files,
            val screenshotsComparator: ScreenshotsComparator,
            val screenshotsSaver: ScreenshotsSaver,
-           console: Console) {
+           console: Console,
+           reporter: ExecutionReporter) {
 
   import Shot._
 
@@ -54,6 +56,7 @@ class Shot(val adb: Adb,
       console.showSuccess("✅  Yeah!!! Your tests are passing.")
     }
     removeProjectTemporalScreenshotsFolder(projectFolder)
+    reporter.generateReport(screenshots, comparision)
     comparision
   }
 
