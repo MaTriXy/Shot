@@ -6,6 +6,11 @@ Shot is a [Gradle](https://gradle.org/) plugin that simplifies the execution of 
 
 ``Shot`` is a Gradle plugin thought to run screenshot tests for Android using the [screenshot testing Facebook SDK](http://facebook.github.io/screenshot-tests-for-android/).
 
+**Since Shot 0.3.0 a simple but powerful HTML report is generated after every verification or screenshots recording execution. Here you have an example of the [recording](./art/recordReport.png) and [verification](./art/verificationReport.png) report generated.** 
+
+![smallVerificationReport1](./art/smallVerificationReport1.png)
+![smallVerificationReport2](./art/smallVerificationReport2.png)
+
 Record your screenshots executing ``./gradlew executeScreenshotTests -Precord``
 
 ![recording](./art/recording.gif)
@@ -18,8 +23,6 @@ If Shot finds any error in your tests execution the Gradle plugin will show a re
 
 ![errorReport](./art/errorReport.png)
 
-**In a future PR we will generate a rich HTML report** 
-
 You can find the complete Facebook SDK documentation [here](https://facebook.github.io/screenshot-tests-for-android/).
 
 ## Getting started
@@ -31,7 +34,7 @@ Setup the Gradle plugin:
     // ...
     dependencies {
       // ...
-      classpath 'com.karumi:shot:0.1.2'
+      classpath 'com.karumi:shot:1.0.0'
     }
   }
   apply plugin: 'shot'
@@ -154,3 +157,37 @@ Once you have a bunch of screenshot tests recorded you can easily verify if the 
 ![shotTasksHelp](./art/tasksDescription.png)
 
 [karumilogo]: https://cloud.githubusercontent.com/assets/858090/11626547/e5a1dc66-9ce3-11e5-908d-537e07e82090.png
+
+## Custom dependencies
+
+If you have included in your project a dependency to related to the dexmaker and you are facing this exception: ``com.android.dx.util.DexException: Multiple dex files define``, you can customize how the facebook SDK is added to your project and exclude the dexmaker library as follows:
+
+ ```
+   androidTestCompile ('com.facebook.testing.screenshot:core:0.4.2') {
+     exclude group: 'com.crittercism.dexmaker', module: 'dexmaker'
+     exclude group: 'com.crittercism.dexmaker', module: 'dexmaker-dx'
+   }
+ ```
+ 
+The Shot plugin automatically detects if you are including the screenshot facebook library in your project and, if it's present, it will not include it again.
+
+## iOS support
+
+If you want to apply the same testing technique on iOS you can use [Snap.swift](https://github.com/skyweb07/Snap.swift)
+
+License
+-------
+
+    Copyright 2018 Karumi
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
