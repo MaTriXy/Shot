@@ -1,5 +1,5 @@
 group 'com.karumi'
-version '1.0.1-SNAPSHOT'
+version '2.0.1-SNAPSHOT'
 
 apply plugin: 'scala'
 apply plugin: 'groovy'
@@ -29,6 +29,10 @@ install {
             repository(url: uri('../repo'))
         }
     }
+}
+
+compileScala {
+    classpath = classpath.plus(files(compileGroovy.destinationDir))
 }
 
 def isReleaseBuild() {
