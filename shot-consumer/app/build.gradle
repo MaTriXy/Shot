@@ -1,80 +1,102 @@
 buildscript {
   repositories {
+    gradlePluginPortal()
+    mavenLocal()
     mavenCentral()
     maven { url "https://jitpack.io" }
-    maven { url uri('../../repo') }
+    google()
   }
   dependencies {
-    classpath 'com.neenbedankt.gradle.plugins:android-apt:1.7'
-    classpath 'com.karumi:shot:2.0.1-SNAPSHOT'
+    classpath(libs.android.apt.gradle.plugin)
+    classpath(libs.shot.gradle.plugin)
+    classpath(libs.composer.gradle.plugin)
   }
 }
 
-apply plugin: 'com.android.application'
-apply plugin: 'shot'
+apply plugin: "com.android.application"
+apply plugin: "kotlin-android"
+apply plugin: "com.trevjonez.composer"
+apply plugin: "shot"
 
 android {
-  compileSdkVersion 23
-  buildToolsVersion '26.0.2'
-  defaultConfig {
-    applicationId 'com.karumi.screenshot'
-    minSdkVersion 16
-    targetSdkVersion 23
-    versionCode 1
-    versionName "1.0"
-    testInstrumentationRunner 'com.karumi.screenshot.ScreenshotTestRunner'
-  }
-  buildTypes {
-    release {
-      minifyEnabled false
+    compileSdkVersion libs.versions.targetsdk.get().toInteger()
+    defaultConfig {
+        applicationId "com.karumi"
+        minSdkVersion libs.versions.minsdk.get().toInteger()
+        targetSdkVersion libs.versions.targetsdk.get().toInteger()
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "com.karumi.TestRunner"
+        multiDexEnabled true
     }
-  }
-  lintOptions {
-    abortOnError false
-  }
-  adbOptions {
-    timeOutInMs 20 * 60 * 1000
-    installOptions "-d","-t"
-  }
+    compileOptions {
+        sourceCompatibility libs.versions.java.get()
+        targetCompatibility libs.versions.java.get()
+    }
+    kotlinOptions {
+        jvmTarget = libs.versions.java.get()
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+    packagingOptions {
+        exclude "META-INF/*"
+    }
+
+    testOptions {
+        if (System.getenv("orchestrated") == "true") {
+            execution "ANDROIDX_TEST_ORCHESTRATOR"
+        }
+    }
+}
+
+configurations {
+    ktlint
 }
 
 dependencies {
-  implementation fileTree(dir: 'libs', include: ['*.jar'])
-  implementation 'com.android.support:appcompat-v7:23.1.1'
-  implementation 'com.android.support:design:23.1.1'
-  implementation 'com.squareup.picasso:picasso:2.5.2'
-  implementation 'com.jakewharton:butterknife:7.0.1'
-  implementation 'com.google.dagger:dagger:2.0.2'
-  implementation 'org.glassfish:javax.annotation:10.0-b28'
-  annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
-  annotationProcessor 'com.jakewharton:butterknife:7.0.1'
-  testImplementation 'com.google.dagger:dagger-compiler:2.0.2'
-  testImplementation 'junit:junit:4.12'
-  androidTestImplementation 'com.github.fabioCollini:DaggerMock:0.4'
-  androidTestAnnotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
-  androidTestImplementation 'com.google.dexmaker:dexmaker:1.2'
-  androidTestImplementation('com.google.dexmaker:dexmaker-mockito:1.2') {
-    exclude group: 'org.hamcrest', module: 'hamcrest-core'
-  }
-  androidTestImplementation 'com.android.support.test:runner:0.4.1'
-  androidTestImplementation 'com.android.support.test:rules:0.4.1'
-  androidTestImplementation 'org.mockito:mockito-core:1.10.19'
-  androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.1') {
-    exclude group: 'javax.inject', module: 'javax.inject'
-    exclude group: 'com.squareup', module: 'javawriter'
-  }
-  androidTestImplementation('com.android.support.test.espresso:espresso-contrib:2.2.1') {
-    exclude module: 'support-annotations'
-    exclude module: 'recyclerview-v7'
-    exclude module: 'support-v4'
-  }
-  androidTestImplementation('com.android.support.test.espresso:espresso-intents:2.2.1')
-}
+    ktlint libs.skyiko.ktlint
 
-configurations.all {
-  resolutionStrategy.force 'com.android.support:support-annotations:23.0.1'
+    implementation libs.androidx.appcompat
+    implementation libs.material
+
+    implementation libs.bundles.kodein
+    implementation libs.picasso
+    implementation libs.coroutines.core
+    implementation libs.coroutines.android
+    annotationProcessor libs.androidx.lifecycle.compiler
+    debugImplementation libs.androidx.fragment.testing
+
+    testImplementation libs.junit
+    androidTestUtil libs.androidx.test.orchestrator
+
+    androidTestImplementation libs.bundles.androidx.test
+    androidTestImplementation libs.asm
+    androidTestImplementation libs.coroutines.test
+    androidTestImplementation libs.dexopener
+    androidTestImplementation libs.mockito.android
+    androidTestImplementation libs.mockito.kotlin
+    androidTestImplementation libs.keyboardvisibilityevent
 }
 
 shot {
-  appId = 'com.karumi.screenshot'
+    useComposer = true
+    showOnlyFailingTestsInReports = true
+    tolerance = 0.5
+}
+
+tasks.register("ktlint", JavaExec) {
+    main = "com.github.shyiko.ktlint.Main"
+    classpath = configurations.ktlint
+    args "src/**/*.kt"
+}
+
+tasks.named("check") { dependsOn "ktLint" }
+
+tasks.register("ktlintFormat", JavaExec) {
+    main = "com.github.shyiko.ktlint.Main"
+    classpath = configurations.ktlint
+    args "-F", "src/**/*.kt"
 }

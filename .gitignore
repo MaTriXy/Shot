@@ -29,3 +29,13 @@ gradle-app.setting
 
 repo/
 
+
+### Visual Studio
+
+.project
+
+### OSX
+
+.DS_Store
+
+*.output

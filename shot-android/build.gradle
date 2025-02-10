@@ -1,0 +1,72 @@
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+apply plugin: "org.jlleitschuh.gradle.ktlint"
+apply plugin: "com.vanniktech.maven.publish"
+
+android {
+    compileSdkVersion libs.versions.targetsdk.get().toInteger()
+    testOptions.unitTests.includeAndroidResources = true
+
+    defaultConfig {
+        minSdkVersion libs.versions.minsdk.get().toInteger()
+        targetSdkVersion libs.versions.targetsdk.get().toInteger()
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "com.karumi.shot.DexOpenerJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility libs.versions.java.get()
+        targetCompatibility libs.versions.java.get()
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+    packagingOptions {
+        exclude "META-INF/*"
+    }
+    kotlinOptions {
+        jvmTarget = libs.versions.java.get()
+        freeCompilerArgs += ["-Xskip-prerelease-check"]
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    google()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation libs.facebook.screenshot
+    implementation libs.androidx.test.runner
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.espresso.core
+    implementation libs.androidx.compose.test
+    implementation libs.gson
+
+    // fragment-testing dependency is normally declared for debug (not test) sources,
+    // as you'd usually run your FragmentScenario tests only in debug variants.
+    // The inspection checks against including it in release variants and recommends using
+    // debugImplementation instead. However it doesn't matter here because we're still only using it
+    // for testing purposes. FragmentScenario API is needed to provide waitForFragment() extension.
+    //noinspection FragmentGradleConfiguration
+    implementation libs.androidx.fragment.testing
+
+    testImplementation libs.junit
+    testImplementation libs.mockito.kotlin
+    testImplementation libs.robolectric
+    testImplementation libs.bundles.androidx.test
+
+    androidTestImplementation libs.dexopener
+    androidTestImplementation libs.mockito.android
+    androidTestImplementation libs.mockito.kotlin
+    androidTestImplementation libs.bundles.androidx.test
+}

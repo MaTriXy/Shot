@@ -1,0 +1,25 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath(libs.android.gradle.plugin)
+        classpath(libs.kotlin.gradle.plugin)
+        classpath(libs.shot.gradle.plugin)
+    }
+}
+
+allprojects {
+    repositories {
+        mavenLocal()
+        google()
+        maven { url "https://jitpack.io" }
+        mavenCentral()
+    }
+}
+
+tasks.register('clean', Delete) {
+    delete rootProject.buildDir
+}

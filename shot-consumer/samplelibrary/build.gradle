@@ -1,0 +1,57 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'shot'
+
+android {
+    compileSdkVersion libs.versions.targetsdk.get().toInteger()
+
+    defaultConfig {
+        testApplicationId "com.karumi.samplelibrary.test.app.id"
+        minSdkVersion libs.versions.minsdk.get().toInteger()
+        targetSdkVersion libs.versions.targetsdk.get().toInteger()
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+        testInstrumentationRunner "com.karumi.shot.ShotTestRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+    compileOptions {
+        sourceCompatibility libs.versions.java.get()
+        targetCompatibility libs.versions.java.get()
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    packagingOptions {
+        exclude "META-INF/**"
+        exclude "**/attach_hotspot_windows.dll"
+    }
+    testOptions {
+        if (System.getenv("orchestrated") == "true") {
+            execution "ANDROIDX_TEST_ORCHESTRATOR"
+        }
+    }
+    kotlinOptions {
+        jvmTarget = libs.versions.java.get()
+    }
+}
+
+dependencies {
+    testImplementation libs.junit
+    androidTestUtil libs.androidx.test.orchestrator
+
+    androidTestImplementation libs.bundles.androidx.test
+    androidTestImplementation libs.asm
+    androidTestImplementation libs.coroutines.test
+    androidTestImplementation libs.dexopener
+    androidTestImplementation libs.mockito.android
+    androidTestImplementation libs.mockito.kotlin
+    androidTestImplementation libs.keyboardvisibilityevent
+}
+
+shot {
+    tolerance = 0.5
+}

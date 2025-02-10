@@ -1,0 +1,117 @@
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+        google()
+    }
+    dependencies {
+        classpath(libs.android.apt.gradle.plugin)
+        classpath(libs.shot.gradle.plugin)
+        classpath(libs.composer.gradle.plugin)
+    }
+}
+
+apply plugin: "com.android.application"
+apply plugin: "kotlin-android"
+apply plugin: "com.trevjonez.composer"
+apply plugin: "shot"
+
+android {
+    compileSdkVersion libs.versions.targetsdk.get().toInteger()
+    defaultConfig {
+        applicationId "com.karumi"
+        minSdkVersion libs.versions.minsdk.get().toInteger()
+        targetSdkVersion libs.versions.targetsdk.get().toInteger()
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "com.karumi.TestRunner"
+        multiDexEnabled true
+    }
+    compileOptions {
+        sourceCompatibility libs.versions.java.get()
+        targetCompatibility libs.versions.java.get()
+    }
+    kotlinOptions {
+        jvmTarget = libs.versions.java.get()
+    }
+    testBuildType "customBuildType"
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+        debug {
+            applicationIdSuffix = ".releaseSuffix"
+        }
+        register("customBuildType") {
+            initWith debug
+        }
+    }
+    packagingOptions {
+        exclude "META-INF/*"
+    }
+    flavorDimensions "color"
+    productFlavors {
+        blue {
+            dimension "color"
+            testApplicationId "com.test.application.id.test"
+        }
+        green {
+            applicationIdSuffix ".green"
+            dimension "color"
+        }
+    }
+    testOptions {
+        if (System.getenv("orchestrated") == "true") {
+            execution "ANDROIDX_TEST_ORCHESTRATOR"
+        }
+    }
+}
+
+configurations {
+    ktlint
+}
+
+dependencies {
+    ktlint libs.skyiko.ktlint
+
+    implementation libs.androidx.appcompat
+    implementation libs.material
+
+    implementation libs.bundles.kodein
+    implementation libs.picasso
+    implementation libs.coroutines.core
+    implementation libs.coroutines.android
+    annotationProcessor libs.androidx.lifecycle.compiler
+
+    testImplementation libs.junit
+    androidTestUtil libs.androidx.test.orchestrator
+
+    androidTestImplementation libs.bundles.androidx.test
+    androidTestImplementation libs.asm
+    androidTestImplementation libs.coroutines.test
+    androidTestImplementation libs.dexopener
+    androidTestImplementation libs.mockito.android
+    androidTestImplementation libs.mockito.kotlin
+    androidTestImplementation libs.keyboardvisibilityevent
+}
+
+tasks.register("ktlint", JavaExec) {
+    main = "com.github.shyiko.ktlint.Main"
+    classpath = configurations.ktlint
+    args "src/**/*.kt"
+}
+
+tasks.named("check") { dependsOn "ktLint" }
+
+tasks.register("ktlintFormat", JavaExec) {
+    main = "com.github.shyiko.ktlint.Main"
+    classpath = configurations.ktlint
+    args "-F", "src/**/*.kt"
+}
+
+shot {
+    showOnlyFailingTestsInReports = true
+    tolerance = 0.5
+}

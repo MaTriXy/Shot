@@ -1,31 +1,26 @@
 buildscript {
-  repositories {
-    jcenter()
-    google()
-  }
-  dependencies {
-    classpath 'com.android.tools.build:gradle:3.0.1'
-  }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        google()
+    }
+    dependencies {
+        classpath(libs.android.gradle.plugin)
+        classpath(libs.kotlin.gradle.plugin)
+        classpath(libs.shot.gradle.plugin)
+    }
 }
 
 allprojects {
-  repositories {
-    jcenter()
-    maven { url "https://jitpack.io" }
-  }
-
-  apply plugin: 'checkstyle'
-
-  task checkstyle(type: Checkstyle) {
-    configFile file("${project.rootDir}/config/checkstyle.xml")
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-
-    classpath = files()
-  }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        google()
+        jcenter() // This is required for Composer since it isn't published anywhere else
+        maven { url "https://jitpack.io" }
+    }
 }
 
-task clean(type: Delete) {
-  delete rootProject.buildDir
+tasks.register('clean', Delete) {
+    delete rootProject.buildDir
 }

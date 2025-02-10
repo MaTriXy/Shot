@@ -1,0 +1,84 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+}
+apply plugin: "shot"
+
+android {
+    namespace "com.karumi.shotconsumercompose"
+    compileSdkVersion libs.versions.targetsdk.get().toInteger()
+
+    defaultConfig {
+        applicationId "com.karumi.shotconsumercompose"
+        minSdkVersion libs.versions.minsdk.get().toInteger()
+        targetSdkVersion libs.versions.targetsdk.get().toInteger()
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "com.karumi.shot.ShotTestRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+        debug {
+            applicationIdSuffix ".debug"
+        }
+    }
+    flavorDimensions "api"
+    productFlavors {
+        staging {
+            dimension "api"
+            applicationIdSuffix ".staging"
+            versionNameSuffix "-staging"
+        }
+        pro {
+            dimension "api"
+        }
+    }
+    compileOptions {
+        sourceCompatibility libs.versions.java.get()
+        targetCompatibility libs.versions.java.get()
+    }
+    kotlinOptions {
+        jvmTarget = libs.versions.java.get()
+    }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion libs.versions.compose.compiler.get()
+    }
+    packagingOptions {
+        exclude "META-INF/*"
+    }
+    testOptions {
+        if (System.getenv("orchestrated") == "true") {
+            execution "ANDROIDX_TEST_ORCHESTRATOR"
+        }
+    }
+}
+
+shot {
+    tolerance = 1.1 //1.1%
+    showOnlyFailingTestsInReports = false
+}
+
+dependencies {
+
+    implementation libs.androidx.core
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    implementation libs.bundles.compose
+    implementation libs.androidx.activity.compose
+    implementation libs.androidx.lifecycle.runtime
+
+    testImplementation libs.junit
+
+    androidTestUtil libs.androidx.test.orchestrator
+
+    androidTestImplementation libs.androidx.compose.test
+    androidTestImplementation libs.bundles.androidx.test
+}

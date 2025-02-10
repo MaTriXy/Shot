@@ -1,23 +1,20 @@
 package com.karumi.shot
 
+import com.karumi.shot.domain.Config
 import scala.beans.BeanProperty
 
 object ShotExtension {
   val name = "shot"
 }
 
-class ShotExtension(@BeanProperty var appId: String,
-                    @BeanProperty var instrumentationTestTask: String,
-                    @BeanProperty var packageTestApkTask: String) {
+class ShotExtension(
+    @BeanProperty var runInstrumentation: Boolean,
+    @BeanProperty var useComposer: Boolean,
+    @BeanProperty var tolerance: Double,
+    @BeanProperty var showOnlyFailingTestsInReports: Boolean,
+    @BeanProperty var applicationId: String
+) {
 
-  def this() = this(null, null, null)
-
-  def getOptionAppId: Option[String] = Option(getAppId)
-
-  def getOptionInstrumentationTestTask: Option[String] =
-    Option(getInstrumentationTestTask)
-
-  def getOptionPackageTestApkTask: Option[String] =
-    Option(getPackageTestApkTask)
+  def this() = this(true, false, Config.defaultTolerance, false, "")
 
 }

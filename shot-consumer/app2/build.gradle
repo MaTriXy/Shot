@@ -1,0 +1,102 @@
+buildscript {
+  repositories {
+    gradlePluginPortal()
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+    google()
+  }
+  dependencies {
+    classpath(libs.android.apt.gradle.plugin)
+    classpath(libs.shot.gradle.plugin)
+    classpath(libs.composer.gradle.plugin)
+  }
+}
+
+apply plugin: "com.android.application"
+apply plugin: "kotlin-android"
+apply plugin: "com.trevjonez.composer"
+apply plugin: "shot"
+
+android {
+    compileSdkVersion libs.versions.targetsdk.get().toInteger()
+    defaultConfig {
+        applicationId "com.karumi"
+        minSdkVersion libs.versions.minsdk.get().toInteger()
+        targetSdkVersion libs.versions.targetsdk.get().toInteger()
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "com.karumi.TestRunner"
+        multiDexEnabled true
+    }
+    compileOptions {
+        sourceCompatibility libs.versions.java.get()
+        targetCompatibility libs.versions.java.get()
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+    packagingOptions {
+        exclude "META-INF/*"
+    }
+    testOptions {
+        if (System.getenv("orchestrated") == "true") {
+            execution "ANDROIDX_TEST_ORCHESTRATOR"
+        }
+    }
+    kotlinOptions {
+        jvmTarget = libs.versions.java.get()
+    }
+}
+
+configurations {
+    ktlint
+}
+
+dependencies {
+    ktlint libs.skyiko.ktlint
+
+    implementation libs.androidx.appcompat
+    implementation libs.material
+
+    implementation libs.bundles.kodein
+    implementation libs.picasso
+    implementation libs.coroutines.core
+    implementation libs.coroutines.android
+    annotationProcessor libs.androidx.lifecycle.compiler
+    debugImplementation libs.androidx.fragment.testing
+
+    testImplementation libs.junit
+    androidTestUtil libs.androidx.test.orchestrator
+
+    androidTestImplementation libs.bundles.androidx.test
+    androidTestImplementation libs.asm
+    androidTestImplementation libs.coroutines.test
+    androidTestImplementation libs.dexopener
+    androidTestImplementation libs.mockito.android
+    androidTestImplementation libs.mockito.kotlin
+    androidTestImplementation libs.keyboardvisibilityevent
+
+    // How to override shot-android inner dependency if needed
+    //shotDependencies "com.karumi:shot-android:4.2.0"
+}
+
+tasks.register("ktlint", JavaExec) {
+    main = "com.github.shyiko.ktlint.Main"
+    classpath = configurations.ktlint
+    args "src/**/*.kt"
+}
+
+tasks.named("check") { dependsOn "ktLint" }
+
+tasks.register("ktlintFormat", JavaExec) {
+    main = "com.github.shyiko.ktlint.Main"
+    classpath = configurations.ktlint
+    args "-F", "src/**/*.kt"
+}
+
+shot {
+    tolerance = .5
+}
